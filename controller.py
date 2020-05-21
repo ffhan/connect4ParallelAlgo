@@ -46,7 +46,7 @@ class ComputerController(Controller):
     def play(self, player: int) -> Tuple[int, int]:
         root = self._tree(player)
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
-        print(board.remap_char(player), result)
+        # print(board.remap_char(player), result)
 
         # todo: fix 5 2 bug
         return result[0].move
