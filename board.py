@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Set, Tuple
 
 
 def remap_char(value: int) -> str:
@@ -26,9 +27,9 @@ class Board:
     PLAYER_2 = -1
 
     INVALID_MOVE = 0
-    LOSS = 1
-    WIN = 2
-    VALID_MOVE = 3
+    LOSS = -1
+    WIN = 1
+    VALID_MOVE = 2
 
     def __init__(self, state=None):
         '''
@@ -41,7 +42,7 @@ class Board:
         # 0 - unplayed field
         # 1 - player 1
         # -1 - player 2 (opponent)
-        if not state:
+        if state is None:
             self.state = np.zeros((Board.height, Board.width))
         else:
             assert type(state) is np.ndarray and state.shape == (Board.height, Board.width)
@@ -69,7 +70,6 @@ class Board:
             return status
         # otherwise update state and return status
         self.state[row, col] = player
-        print(row, col, player, status)
         return status
 
     def think(self, row: int, col: int, player: int) -> int:
@@ -82,8 +82,17 @@ class Board:
 
         if row_count == Board.win_count or col_count == Board.win_count:
             return Board.WIN
-        print(row, col, player, row_count, col_count)
         return Board.VALID_MOVE
+
+    @property
+    def valid_moves(self) -> Set[Tuple[int, int]]:
+        moves = set()
+        for col in range(self.width):
+            for row in range(self.height - 1, -1, -1):
+                if self.state[row, col] == self.NOT_SET:
+                    moves.add((row, col))
+                    break
+        return moves
 
     def check_validity(self, row: int, col: int) -> bool:
         # if field is set move is invalid
@@ -120,7 +129,7 @@ class Board:
             max_count += 1
         return max_count
 
-    def __repr__(self):
+    def table(self):
         horizontal_border = '\u2550'
         vertical_border = '\u2551'
         top_left_border = '\u256C'
@@ -138,6 +147,9 @@ class Board:
         result = top + '\n' + header + '\n' + result + footer + '\n'
         return result
 
+    def copy(self):
+        return Board(state=np.copy(self.state))
+
 
 if __name__ == '__main__':
     b = Board()
@@ -154,4 +166,5 @@ if __name__ == '__main__':
     assert b.play(2, 2, 1) == Board.VALID_MOVE
     assert b.play(4, 5, -1) == Board.VALID_MOVE
     assert b.play(5, 3, 1) == Board.WIN
-    print(b)
+    print(b.table())
+    print(b.valid_moves)
