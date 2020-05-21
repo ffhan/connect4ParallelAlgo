@@ -1,6 +1,7 @@
 import abc
 import board
 import tree
+import time
 from typing import Tuple, List
 
 
@@ -43,9 +44,11 @@ class ComputerController(Controller):
         return score / total, -total
 
     def play(self, player: int) -> int:
+        start = time.time()
         root = self._tree(player)
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
         # print(board.remap_char(player), result)
+        print(time.time() - start)
         return result[0].move
 
     def _tree(self, me: int) -> tree.Node:
