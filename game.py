@@ -31,9 +31,9 @@ class Game:
                 return self.board.WIN
             return self.board.LOSS
 
-        row, col = ctl.play(player)
+        col = ctl.play(player)
 
-        status = self.board.play(row, col, player)
+        status = self.board.play(col, player)
         if status == self.board.INVALID_MOVE:
             return status
         if status == self.board.WIN:
@@ -52,23 +52,7 @@ class Game:
 
 
 def test_1():
-    all_moves = [(5, 0),
-                 (5, 1),
-                 (5, 2),
-                 (5, 3),
-                 (1, 5),
-                 (5, 4),
-                 (5, 5),
-                 (5, 6),
-                 (1, 1),
-                 (4, 1),
-                 (4, 2),
-                 (3, 1),
-                 (3, 2),
-                 (2, 1),
-                 (2, 2),
-                 (1, 1),
-                 (1, 2)]
+    all_moves = [0, 1, 2, 3, 5, 4, 5, 6, 1, 1, 2, 1, 2, 1, 2, 1, 2]
     b = board.Board()
     game = Game(b, controller.HardcodedController(b, all_moves[::2]),
                 controller.HardcodedController(b, all_moves[1::2]))
@@ -117,12 +101,12 @@ def user_vs_computer():
 
 def computer_vs_computer():
     b = board.Board()
-    game = Game(b, controller.ComputerController(b, difficulty=3), controller.ComputerController(b, difficulty=7))
+    game = Game(b, controller.ComputerController(b, difficulty=1), controller.ComputerController(b, difficulty=3))
     game.run(verbose=True)
 
 
 if __name__ == '__main__':
     # test_1()
     # user_vs_user()
-    # user_vs_computer()
-    computer_vs_computer()
+    user_vs_computer()
+    # computer_vs_computer()

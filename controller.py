@@ -9,16 +9,16 @@ class Controller(abc.ABC):
         self.board = board
 
     @abc.abstractmethod
-    def play(self, player: int) -> Tuple[int, int]:
+    def play(self, player: int) -> int:
         pass
 
 
 class HardcodedController(Controller):
-    def __init__(self, board: board.Board, moves: List[Tuple[int, int]]):
+    def __init__(self, board: board.Board, moves: List[int]):
         super().__init__(board)
         self.moves = moves
 
-    def play(self, player: int) -> Tuple[int, int]:
+    def play(self, player: int) -> int:
         return self.moves.pop(0)
 
 
@@ -26,13 +26,12 @@ class UserController(Controller):
     def __init__(self, board: board.Board):
         super().__init__(board)
 
-    def play(self, player: int) -> Tuple[int, int]:
-        row, col = map(lambda t: int(t), input().split(' '))
-        return row, col
+    def play(self, player: int) -> int:
+        return int(input())
 
 
 class ComputerController(Controller):
-    def __init__(self, board: board.Board, difficulty=5):
+    def __init__(self, board: board.Board, difficulty=7):
         super().__init__(board)
         self.max_depth = difficulty
 
@@ -43,12 +42,10 @@ class ComputerController(Controller):
         # sort first by score, then by min of total
         return score / total, -total
 
-    def play(self, player: int) -> Tuple[int, int]:
+    def play(self, player: int) -> int:
         root = self._tree(player)
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
         # print(board.remap_char(player), result)
-
-        # todo: fix 5 2 bug
         return result[0].move
 
     def _tree(self, me: int) -> tree.Node:
@@ -59,7 +56,7 @@ class ComputerController(Controller):
                 new_board = board.copy()
                 new_node = tree.Node(0, 0, move, node)
                 node.add(new_node)
-                status = new_board.play(*move, player)
+                status = new_board.play(move, player)
                 new_node.status = status
                 if status == board.WIN:
                     if player == me:

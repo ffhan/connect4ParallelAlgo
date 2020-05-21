@@ -7,7 +7,7 @@ class Node:
         self.children = list(nodes)
         self.score = score
         self.total = total
-        self.move: Tuple[int, int] = move
+        self.move: int = move
         self.status = None
         self.winner = False
         self.loser = False
@@ -20,7 +20,7 @@ class Node:
     def __repr__(self):
         return f'Node(score {self.score} total {self.total} move {self.move}) winner {self.winner} loser {self.loser}'
 
-    def chain(self) -> List[Tuple[int, int]]:
+    def chain(self) -> List[int]:
         result = [self.move]
         if self.parent:
             result += self.parent.chain()

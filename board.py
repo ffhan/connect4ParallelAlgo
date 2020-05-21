@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Set, Tuple
+from typing import List
 
 
 def remap_char(value: int) -> str:
@@ -42,13 +42,19 @@ class Board:
         # 0 - unplayed field
         # 1 - player 1
         # -1 - player 2 (opponent)
+        self.last_rows = [Board.height - 1 for i in range(Board.width)]
         if state is None:
             self.state = np.zeros((Board.height, Board.width))
         else:
             assert type(state) is np.ndarray and state.shape == (Board.height, Board.width)
             self.state = state
+            for col in range(self.width):
+                for row in range(self.height - 1, -1, -1):
+                    if self.state[row, col] == self.NOT_SET:
+                        self.last_rows[col] = row
+                        break
 
-    def play(self, row: int, col: int, player: int) -> int:
+    def play(self, col: int, player: int) -> int:
         '''
         Plays a move and updates board state.
         Returns a move status (win/invalid move)
@@ -58,18 +64,16 @@ class Board:
         :param player: player index
         :return: move status
         '''
+        row = self.last_rows[col]
         if player != Board.PLAYER_1 and player != Board.PLAYER_2:
             raise Exception(f'invalid player {player}')
-        if not (0 <= row < Board.height):
-            raise Exception(f'invalid row {row}')
-        if not (0 <= col < Board.width):
-            raise Exception(f'invalid col {col}')
         status = self.think(row, col, player)
         # if invalid, return status and don't update state
         if status == Board.INVALID_MOVE:
             return status
         # otherwise update state and return status
         self.state[row, col] = player
+        self.last_rows[col] -= 1
         return status
 
     def think(self, row: int, col: int, player: int) -> int:
@@ -85,16 +89,18 @@ class Board:
         return Board.VALID_MOVE
 
     @property
-    def valid_moves(self) -> Set[Tuple[int, int]]:
-        moves = set()
-        for col in range(self.width):
-            for row in range(self.height - 1, -1, -1):
-                if self.state[row, col] == self.NOT_SET:
-                    moves.add((row, col))
-                    break
-        return moves
+    def valid_moves(self) -> List[int]:
+        result = []
+        for i, elem in enumerate(self.last_rows):
+            if 0 <= elem < Board.height:
+                result.append(i)
+        return result
 
     def check_validity(self, row: int, col: int) -> bool:
+        if not (0 <= row < Board.height):
+            return False
+        if not (0 <= col < Board.width):
+            return False
         # if field is set move is invalid
         if self.state[row, col] != Board.NOT_SET:
             return False
@@ -140,31 +146,14 @@ class Board:
         fmt_string = ('{} ' * Board.width)
         top = ' ' + vertical_border + ' ' + ' '.join([f'{i}' for i in range(self.width)]) + ' ' + vertical_border
         header = horizontal_border + top_left_border + horizontal_border * (Board.width * 2 + 1) + top_right_border
-        footer = horizontal_border + bottom_left_border + horizontal_border * (Board.width * 2 + 1) + bottom_right_border
+        footer = horizontal_border + bottom_left_border + horizontal_border * (
+                    Board.width * 2 + 1) + bottom_right_border
         result = ''
         for i, row in enumerate(self.state):
-            result += f'{i}' + vertical_border + ' ' + fmt_string.format(*list(map(remap_char, row))) + vertical_border + '\n'
+            result += f'{i}' + vertical_border + ' ' + fmt_string.format(
+                *list(map(remap_char, row))) + vertical_border + '\n'
         result = top + '\n' + header + '\n' + result + footer + '\n'
         return result
 
     def copy(self):
         return Board(state=np.copy(self.state))
-
-
-if __name__ == '__main__':
-    b = Board()
-    assert b.play(5, 1, 1) == Board.VALID_MOVE
-    assert b.play(5, 6, 1) == Board.VALID_MOVE
-    assert b.play(4, 1, -1) == Board.VALID_MOVE
-    assert b.play(5, 2, 1) == Board.VALID_MOVE
-    assert b.play(3, 2, -1) == Board.INVALID_MOVE
-    assert b.play(5, 5, -1) == Board.VALID_MOVE
-    assert b.play(5, 4, 1) == Board.VALID_MOVE
-    assert b.play(5, 0, -1) == Board.VALID_MOVE
-    assert b.play(4, 2, 1) == Board.VALID_MOVE
-    assert b.play(3, 2, -1) == Board.VALID_MOVE
-    assert b.play(2, 2, 1) == Board.VALID_MOVE
-    assert b.play(4, 5, -1) == Board.VALID_MOVE
-    assert b.play(5, 3, 1) == Board.WIN
-    print(b.table())
-    print(b.valid_moves)
