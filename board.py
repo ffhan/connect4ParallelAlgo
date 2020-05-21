@@ -123,18 +123,19 @@ class Board:
     def __repr__(self):
         horizontal_border = '\u2550'
         vertical_border = '\u2551'
-        top_left_border = '\u2554'
-        top_right_border = '\u2557'
-        bottom_left_border = '\u255A'
+        top_left_border = '\u256C'
+        top_right_border = '\u2563'
+        bottom_left_border = '\u2569'
         bottom_right_border = '\u255D'
 
-        fmt_string = ('{} ' * Board.width)[:-1]
-        header = top_left_border + horizontal_border * (Board.width * 2 + 1) + top_right_border
-        footer = bottom_left_border + horizontal_border * (Board.width * 2 + 1) + bottom_right_border
+        fmt_string = ('{} ' * Board.width)
+        top = ' ' + vertical_border + ' ' + ' '.join([f'{i}' for i in range(self.width)]) + ' ' + vertical_border
+        header = horizontal_border + top_left_border + horizontal_border * (Board.width * 2 + 1) + top_right_border
+        footer = horizontal_border + bottom_left_border + horizontal_border * (Board.width * 2 + 1) + bottom_right_border
         result = ''
-        for row in self.state:
-            result += vertical_border + ' ' + fmt_string.format(*list(map(remap_char, row))) + ' ' + vertical_border + '\n'
-        result = header + '\n' + result + footer + '\n'
+        for i, row in enumerate(self.state):
+            result += f'{i}' + vertical_border + ' ' + fmt_string.format(*list(map(remap_char, row))) + vertical_border + '\n'
+        result = top + '\n' + header + '\n' + result + footer + '\n'
         return result
 
 
