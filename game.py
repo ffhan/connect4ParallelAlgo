@@ -48,6 +48,7 @@ class Game:
             self.step()
             if verbose:
                 print(self.board.table())
+                print(self.board.valid_moves)
         print(f'Player {board.remap_char(self.won)} won!')
 
 
@@ -84,24 +85,18 @@ def test_1():
 def user_vs_user():
     b = board.Board()
     game = Game(b, controller.UserController(b), controller.UserController(b))
-    while game.won == 0:
-        game.step()
-        print(game.board.table())
-    print(f'Winner is {game.won}')
+    game.run(verbose=True)
 
 
 def user_vs_computer():
     b = board.Board()
-    game = Game(b, controller.UserController(b), controller.ComputerController(b))
-    while game.won == 0:
-        game.step()
-        print(game.board.table())
-    print(f'Winner is {game.won}')
+    game = Game(b, controller.UserController(b), controller.ComputerController(b, difficulty=6))
+    game.run(verbose=True)
 
 
 def computer_vs_computer():
     b = board.Board()
-    game = Game(b, controller.ComputerController(b, difficulty=1), controller.ComputerController(b, difficulty=3))
+    game = Game(b, controller.ComputerController(b, difficulty=1), controller.ComputerController(b, difficulty=6))
     game.run(verbose=True)
 
 

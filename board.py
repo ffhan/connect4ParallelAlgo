@@ -49,6 +49,7 @@ class Board:
             assert type(state) is np.ndarray and state.shape == (Board.height, Board.width)
             self.state = state
             for col in range(self.width):
+                self.last_rows[col] = -1
                 for row in range(self.height - 1, -1, -1):
                     if self.state[row, col] == self.NOT_SET:
                         self.last_rows[col] = row
@@ -84,7 +85,7 @@ class Board:
         row_count = self._count(row_arr, col, player)
         col_count = self._count(col_arr, row, player)
 
-        if row_count == Board.win_count or col_count == Board.win_count:
+        if row_count >= Board.win_count or col_count >= Board.win_count:
             return Board.WIN
         return Board.VALID_MOVE
 

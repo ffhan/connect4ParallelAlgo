@@ -1,5 +1,6 @@
 import abc
 import board
+from board import remap_char
 import tree
 import time
 from typing import Tuple, List
@@ -47,7 +48,9 @@ class ComputerController(Controller):
         start = time.time()
         root = self._tree(player)
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
-        # print(board.remap_char(player), result)
+        print(board.remap_char(player), result)
+        with open('root.txt', 'w') as file:
+            file.write(root.tree())
         print(time.time() - start)
         return result[0].move
 
@@ -57,7 +60,7 @@ class ComputerController(Controller):
 
             for move in valid:
                 new_board = board.copy()
-                new_node = tree.Node(0, 0, move, node)
+                new_node = tree.Node(0, 0, move, remap_char(player), node)
                 node.add(new_node)
                 status = new_board.play(move, player)
                 new_node.status = status
@@ -69,9 +72,9 @@ class ComputerController(Controller):
                         new_node.total = 1
                         # print(move, 'wins the game!')
                     else:
+                        node.loser = True
                         new_node.score = board.LOSS
                         new_node.total = 1
-                        node.loser = True
                         new_node.loser = True
                     continue
                 elif status == board.LOSS:
@@ -79,7 +82,7 @@ class ComputerController(Controller):
                 if current_depth < self.max_depth:
                     recurse(player * -1, new_board, current_depth + 1, new_node)
                 del new_board
-            if not (node.winner or node.loser): # if not directly a winner or a loser (child not a winner or loser)
+            if not (node.winner or node.loser):  # if not directly a winner or a loser (child not a winner or loser)
                 all_winners = True
                 all_losers = True
                 for child in node.children:
@@ -90,28 +93,21 @@ class ComputerController(Controller):
                     else:
                         all_winners = False
                         all_losers = False
-                if all_winners:
-                    node.winner = True
-                if all_losers:
-                    node.loser = True
+                node.winner = all_winners
+                node.loser = all_losers
+
+            if node.children:
                 score, total = 0, 0
                 for child in node.children:
-                    if child.winner:
-                        score += board.WIN
-                    elif child.loser:
+                    if child.loser:
                         score += board.LOSS
+                    elif child.winner:
+                        score += board.WIN
                     total += 1
                 node.score = score
                 node.total = total
-            else:
-                if node.winner:
-                    node.score = 1
-                    node.total = 1
-                elif node.loser:
-                    node.score = -1
-                    node.total = 1
             # print(node)
 
-        tree_node = tree.Node(0, 0, None, None)
+        tree_node = tree.Node(0, 0, None, None, None)
         recurse(me, self.board, 1, tree_node)
         return tree_node
