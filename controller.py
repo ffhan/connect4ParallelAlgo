@@ -99,11 +99,13 @@ class ComputerController(Controller):
             if node.children:
                 score, total = 0, 0
                 for child in node.children:
-                    if child.loser:
-                        score += board.LOSS
-                    elif child.winner:
-                        score += board.WIN
-                    total += 1
+                    score += child.score
+                    total += child.total
+                    # if child.loser:
+                    #     score += board.LOSS
+                    # elif child.winner:
+                    #     score += board.WIN
+                    # total += 1
                 node.score = score
                 node.total = total
             # print(node)
