@@ -71,7 +71,7 @@ class MasterController(controller.Controller):
 
         self._forward_thread.start()
         self._recv_thread.start()
-        # self._work_thread.start()
+        self._work_thread.start()
 
     def _forward_tasks(self):
         while True:
@@ -93,7 +93,7 @@ class MasterController(controller.Controller):
         while True:
             task: Task = self._task_queue.get()
             common.log(f'got task {task}')
-            b = board.Board(self.board.state)
+            b = board.Board(task.state)
             self.controller.board = b
             response = do_work(self.controller, task, b)
             common.log(f'putting response {response} to queue')
@@ -104,7 +104,7 @@ class MasterController(controller.Controller):
         num_of_tasks = len(self.board.valid_moves)
         common.log('sent bcast')
         for move in self.board.valid_moves:
-            task = Task(-1, self.board.state, move, player)
+            task = Task(-1, np.copy(self.board.state), move, player)
             self._task_queue.put(task)
 
         results: List[Result] = []
@@ -134,23 +134,19 @@ class Slave:
                 common.log('exiting')
                 return
 
-            result, state = self.work(message.value)
+            result, state = self._work(message.value)
             self.comm.isend(Message(RESULT_TAG, result), dest=0, tag=RESULT_TAG)
             common.log('sent result')
             del state
             del result
 
-    def work(self, task: Task):
+    def _work(self, task: Task):
         state = task.state
         common.log('received bcast')
         b = board.Board(state)
         self.controller.board = b
         common.log(f'received task {task}')
 
-        node = self.controller.play_node(task.player, b, task.move, task.player, None)
-        if node.status != b.WIN:
-            node = self.controller.compute(task.player * -1)
-        node.move = task.move
-        result = Result(common.calculate_score(-node.score, node.total), node.winner, node.loser, node.move)
+        result = do_work(self.controller, task, b)
         common.log(f'calculated result {result}')
         return result, state
