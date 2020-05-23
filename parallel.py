@@ -1,10 +1,10 @@
 from typing import List
 
 import numpy as np
-from mpi4py import MPI
 
 import board
 import controller
+import common
 
 BOARD_TAG = 100
 TASK_TAG = 101
@@ -52,16 +52,16 @@ class MasterController(controller.Controller):
         tasks = []
         workers = set([i + 1 for i in range(self.num_of_processes - 1)])
         self.comm.bcast(Message(BOARD_TAG, self.board.state), root=0)
-        print('sent bcast')
+        common.log('sent bcast')
         for move in self.board.valid_moves:
             task = Task(workers.pop(), move, player)
             tasks.append(task)
             self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
-            print(f'sent task to {task.worker}')
+            common.log(f'sent task to {task.worker}')
         results: List[Result] = []
         for task in tasks:
             result: Message = self.comm.recv(source=task.worker, tag=RESULT_TAG)
-            print(f'received result from {task.worker}')
+            common.log(f'received result from {task.worker}')
             results.append(result.value)
         results = sorted(results, key=lambda t: t.score, reverse=True)
         return results[0].move
@@ -86,22 +86,22 @@ class Slave:
             if msg.tag == BOARD_TAG:
                 state = msg.value
             elif msg.tag == DONE_TAG:
-                print('exiting')
+                common.log('exiting')
                 return
-            print('received bcast')
+            common.log('received bcast')
             b = board.Board(state)
             self.controller.board = b
 
             task_message: Message = self.comm.recv(source=0, tag=TASK_TAG)
             task = task_message.value
-            print(f'received task {task}')
+            common.log(f'received task {task}')
             node = self.controller.play_node(task.player, b, task.move, task.player, None)
             if node.status != b.WIN:
-                node = self.controller.compute(task.player)
+                node = self.controller.compute(task.player * -1)
             node.move = task.move
-            result = Result(self._calc_score(node.score, node.total), node.winner, node.loser, node.move)
-            print(f'calculated result {result}')
+            result = Result(self._calc_score(-node.score, node.total), node.winner, node.loser, node.move)
+            common.log(f'calculated result {result}')
             self.comm.isend(Message(RESULT_TAG, result), dest=0, tag=RESULT_TAG)
-            print('sent result')
+            common.log('sent result')
             del state
             del result
