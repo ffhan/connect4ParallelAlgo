@@ -1,12 +1,24 @@
-import sys
-import controller
-import numpy as np
-import board
 from typing import List
+
+import numpy as np
 from mpi4py import MPI
 
+import board
+import controller
+
+BOARD_TAG = 100
 TASK_TAG = 101
 RESULT_TAG = 102
+DONE_TAG = 103
+
+
+class Message:
+    def __init__(self, tag, value):
+        self.tag = tag
+        self.value = value
+
+    def __repr__(self):
+        return f'Message(tag: {self.tag}, value: {self.value})'
 
 
 class Task:
@@ -39,18 +51,18 @@ class MasterController(controller.Controller):
     def play(self, player: int) -> int:
         tasks = []
         workers = set([i + 1 for i in range(self.num_of_processes - 1)])
-        self.comm.Bcast([self.board.state, MPI.INT], root=0)
+        self.comm.bcast(Message(BOARD_TAG, self.board.state), root=0)
         print('sent bcast')
         for move in self.board.valid_moves:
             task = Task(workers.pop(), move, player)
             tasks.append(task)
-            self.comm.isend(task, dest=task.worker, tag=TASK_TAG)
+            self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
             print(f'sent task to {task.worker}')
         results: List[Result] = []
         for task in tasks:
-            result: Result = self.comm.recv(source=task.worker, tag=RESULT_TAG)
+            result: Message = self.comm.recv(source=task.worker, tag=RESULT_TAG)
             print(f'received result from {task.worker}')
-            results.append(result)
+            results.append(result.value)
         results = sorted(results, key=lambda t: t.score, reverse=True)
         return results[0].move
 
@@ -69,12 +81,19 @@ class Slave:
     def run(self):
         while True:
             state = np.empty((board.Board.height, board.Board.width))
-            self.comm.Bcast(state, root=0)
+            msg: Message = None
+            msg: Message = self.comm.bcast(msg, root=0)
+            if msg.tag == BOARD_TAG:
+                state = msg.value
+            elif msg.tag == DONE_TAG:
+                print('exiting')
+                return
             print('received bcast')
             b = board.Board(state)
             self.controller.board = b
 
-            task: Task = self.comm.recv(source=0, tag=TASK_TAG)
+            task_message: Message = self.comm.recv(source=0, tag=TASK_TAG)
+            task = task_message.value
             print(f'received task {task}')
             node = self.controller.play_node(task.player, b, task.move, task.player, None)
             if node.status != b.WIN:
@@ -82,7 +101,7 @@ class Slave:
             node.move = task.move
             result = Result(self._calc_score(node.score, node.total), node.winner, node.loser, node.move)
             print(f'calculated result {result}')
-            self.comm.isend(result, dest=0, tag=RESULT_TAG)
+            self.comm.isend(Message(RESULT_TAG, result), dest=0, tag=RESULT_TAG)
             print('sent result')
             del state
             del result

@@ -19,8 +19,10 @@ if __name__ == '__main__':
         master = parallel.MasterController(comm, num_of_processes, board)
         game = game.Game(board, controller.UserController(board), master)
         game.run(verbose=True)
+        comm.bcast(parallel.Message(parallel.DONE_TAG, True), root=0)
     else:
         print(f'initializing slave {rank}')
         ctl = controller.ComputerController(None, max_depth - 1)
         slave = parallel.Slave(comm, ctl)
         slave.run()
+        print(f'slave {rank} exited')
