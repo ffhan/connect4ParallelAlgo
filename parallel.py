@@ -1,12 +1,13 @@
 from typing import List
 
+import measure
 import numpy as np
 
 import board
-import controller
 import common
+import controller
 
-BOARD_TAG = 100
+REQUEST_TAG = 50
 TASK_TAG = 101
 RESULT_TAG = 102
 DONE_TAG = 103
@@ -22,10 +23,11 @@ class Message:
 
 
 class Task:
-    def __init__(self, worker: int, move: int, player: int):
+    def __init__(self, worker: int, state: np.ndarray, move: int, player: int):
         self.player = player
         self.move = move
         self.worker = worker
+        self.state = state
 
     def __repr__(self) -> str:
         return f'Task(player: {self.player}, move: {self.move}, worker:{self.worker})'
@@ -48,14 +50,19 @@ class MasterController(controller.Controller):
         self.comm = comm
         self.num_of_processes = num_of_processes
 
+    @measure.log
     def play(self, player: int) -> int:
         tasks = []
-        workers = set([i + 1 for i in range(self.num_of_processes - 1)])
-        self.comm.bcast(Message(BOARD_TAG, self.board.state), root=0)
         common.log('sent bcast')
         for move in self.board.valid_moves:
-            task = Task(workers.pop(), move, player)
+            task = Task(-1, self.board.state, move, player)
             tasks.append(task)
+        for i in range(len(tasks)):
+            request: Message = self.comm.recv(tag=REQUEST_TAG)
+            common.log(f'got request from {request.value}')
+            worker = request.value
+            task = tasks[i]
+            task.worker = worker
             self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
             common.log(f'sent task to {task.worker}')
         results: List[Result] = []
@@ -68,7 +75,8 @@ class MasterController(controller.Controller):
 
 
 class Slave:
-    def __init__(self, comm, ctl: controller.ComputerController):
+    def __init__(self, rank: int, comm, ctl: controller.ComputerController):
+        self.rank = rank
         self.comm = comm
         self.controller = ctl
 
@@ -80,20 +88,21 @@ class Slave:
 
     def run(self):
         while True:
-            state = np.empty((board.Board.height, board.Board.width))
-            msg: Message = None
-            msg: Message = self.comm.bcast(msg, root=0)
-            if msg.tag == BOARD_TAG:
-                state = msg.value
-            elif msg.tag == DONE_TAG:
+            request = Message(REQUEST_TAG, self.rank)
+            self.comm.isend(request, dest=0, tag=REQUEST_TAG)
+
+            message: Message = self.comm.recv(source=0)
+
+            if message.tag == DONE_TAG:
                 common.log('exiting')
                 return
+
+            task: Task = message.value
+            state = task.state
             common.log('received bcast')
             b = board.Board(state)
             self.controller.board = b
 
-            task_message: Message = self.comm.recv(source=0, tag=TASK_TAG)
-            task = task_message.value
             common.log(f'received task {task}')
             node = self.controller.play_node(task.player, b, task.move, task.player, None)
             if node.status != b.WIN:

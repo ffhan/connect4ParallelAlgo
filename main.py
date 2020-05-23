@@ -15,6 +15,8 @@ if __name__ == '__main__':
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
+    common.VERBOSE = True
+
     if rank == 0:
         common.log('initializing master')
         board = board.Board()
@@ -25,6 +27,6 @@ if __name__ == '__main__':
     else:
         common.log(f'initializing slave {rank}')
         ctl = controller.ComputerController(None, max_depth - 1)
-        slave = parallel.Slave(comm, ctl)
+        slave = parallel.Slave(rank, comm, ctl)
         slave.run()
         common.log(f'slave {rank} exited')

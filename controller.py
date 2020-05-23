@@ -49,9 +49,9 @@ class ComputerController(Controller):
     def play(self, player: int) -> int:
         root = self.compute(player)
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
-        print(board.remap_char(player), result)
-        with open('root.txt', 'w') as file:
-            file.write(root.tree())
+        # print(board.remap_char(player), result)
+        # with open('root.txt', 'w') as file:
+        #     file.write(root.tree())
         return result[0].move
 
     @staticmethod
