@@ -1,3 +1,6 @@
+import threading
+import queue
+
 from typing import List
 
 import measure
@@ -49,6 +52,28 @@ class MasterController(controller.Controller):
         super().__init__(board)
         self.comm = comm
         self.num_of_processes = num_of_processes
+        self._forward_thread = threading.Thread(target=self._forward_tasks, daemon=True)
+        self._recv_thread = threading.Thread(target=self._return_response, daemon=True)
+        self._task_queue = queue.Queue()
+        self._response_queue = queue.Queue()
+        self._forward_thread.start()
+        self._recv_thread.start()
+
+    def _forward_tasks(self):
+        while True:
+            request: Message = self.comm.recv(tag=REQUEST_TAG)
+            common.log(f'got request from {request.value}')
+            worker = request.value
+            task = self._task_queue.get()
+            task.worker = worker
+            self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
+            common.log(f'sent task to {task.worker}')
+
+    def _return_response(self):
+        while True:
+            result: Message = self.comm.recv(tag=RESULT_TAG)
+            common.log(f'received result')
+            self._response_queue.put(result.value)
 
     @measure.log
     def play(self, player: int) -> int:
@@ -56,22 +81,18 @@ class MasterController(controller.Controller):
         common.log('sent bcast')
         for move in self.board.valid_moves:
             task = Task(-1, self.board.state, move, player)
+            self._task_queue.put(task)
             tasks.append(task)
-        for i in range(len(tasks)):
-            request: Message = self.comm.recv(tag=REQUEST_TAG)
-            common.log(f'got request from {request.value}')
-            worker = request.value
-            task = tasks[i]
-            task.worker = worker
-            self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
-            common.log(f'sent task to {task.worker}')
+        num_of_tasks = len(tasks)
+
         results: List[Result] = []
-        for task in tasks:
-            result: Message = self.comm.recv(source=task.worker, tag=RESULT_TAG)
-            common.log(f'received result from {task.worker}')
-            results.append(result.value)
+        for i in range(num_of_tasks):
+            results.append(self._response_queue.get(block=True))
         results = sorted(results, key=lambda t: t.score, reverse=True)
         return results[0].move
+
+    def done(self):
+        self.comm.bcast(Message(DONE_TAG, True), root=0)
 
 
 class Slave:
