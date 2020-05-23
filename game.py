@@ -48,7 +48,6 @@ class Game:
             self.step()
             if verbose:
                 print(self.board.table())
-                print(self.board.valid_moves)
         print(f'Player {board.remap_char(self.won)} won!')
 
 

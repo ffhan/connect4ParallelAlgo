@@ -2,7 +2,6 @@ import abc
 import board
 from board import remap_char
 import tree
-import time
 from typing import Tuple, List
 
 
@@ -44,15 +43,39 @@ class ComputerController(Controller):
         # sort first by score, then by min of total
         return score / total, -total
 
+    def compute(self, player: int) -> tree.Node:
+        return self._tree(player)
+
     def play(self, player: int) -> int:
-        start = time.time()
-        root = self._tree(player)
+        root = self.compute(player)
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
         print(board.remap_char(player), result)
         with open('root.txt', 'w') as file:
             file.write(root.tree())
-        print(time.time() - start)
         return result[0].move
+
+    @staticmethod
+    def play_node(me: int, board: board.Board, move: int, player: int, node: tree.Node):
+        new_node = tree.Node(0, 0, move, remap_char(player), node)
+        if node:
+            node.add(new_node)
+        status = board.play(move, player)
+        new_node.status = status
+        if status == board.WIN:
+            if player == me:
+                if node:
+                    node.winner = True
+                new_node.winner = True
+                new_node.score = board.WIN
+                new_node.total = 1
+                # print(move, 'wins the game!')
+            else:
+                if node:
+                    node.loser = True
+                new_node.score = board.LOSS
+                new_node.total = 1
+                new_node.loser = True
+        return new_node
 
     def _tree(self, me: int) -> tree.Node:
         def recurse(player: int, board: board.Board, current_depth: int, node: tree.Node):
@@ -60,25 +83,9 @@ class ComputerController(Controller):
 
             for move in valid:
                 new_board = board.copy()
-                new_node = tree.Node(0, 0, move, remap_char(player), node)
-                node.add(new_node)
-                status = new_board.play(move, player)
-                new_node.status = status
-                if status == board.WIN:
-                    if player == me:
-                        node.winner = True
-                        new_node.winner = True
-                        new_node.score = board.WIN
-                        new_node.total = 1
-                        # print(move, 'wins the game!')
-                    else:
-                        node.loser = True
-                        new_node.score = board.LOSS
-                        new_node.total = 1
-                        new_node.loser = True
+                new_node = self.play_node(me, new_board, move, player, node)
+                if new_node.status == board.WIN:
                     continue
-                elif status == board.LOSS:
-                    raise Exception('board should never return LOSS status')
                 if current_depth < self.max_depth:
                     recurse(player * -1, new_board, current_depth + 1, new_node)
                 del new_board
