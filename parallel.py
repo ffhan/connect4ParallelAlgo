@@ -47,17 +47,31 @@ class Result:
         return f'Result(score: {self.score}, winner: {self.winner}, loser: {self.loser}, move: {self.move})'
 
 
+def do_work(controller: controller.ComputerController, task: Task, board: board.Board) -> Result:
+    node = controller.play_node(task.player, board, task.move, task.player, None)
+    if node.status != board.WIN:
+        node = controller.compute(task.player * -1)
+    node.move = task.move
+    return Result(common.calculate_score(-node.score, node.total), node.winner, node.loser, node.move)
+
+
 class MasterController(controller.Controller):
-    def __init__(self, comm, num_of_processes, board):
+    def __init__(self, comm, num_of_processes, board, controller):
         super().__init__(board)
         self.comm = comm
         self.num_of_processes = num_of_processes
+        self.controller = controller
+
         self._forward_thread = threading.Thread(target=self._forward_tasks, daemon=True)
         self._recv_thread = threading.Thread(target=self._return_response, daemon=True)
+        self._work_thread = threading.Thread(target=self._work, daemon=True)
+
         self._task_queue = queue.Queue()
         self._response_queue = queue.Queue()
+
         self._forward_thread.start()
         self._recv_thread.start()
+        # self._work_thread.start()
 
     def _forward_tasks(self):
         while True:
@@ -75,19 +89,27 @@ class MasterController(controller.Controller):
             common.log(f'received result')
             self._response_queue.put(result.value)
 
+    def _work(self):
+        while True:
+            task: Task = self._task_queue.get()
+            common.log(f'got task {task}')
+            b = board.Board(self.board.state)
+            self.controller.board = b
+            response = do_work(self.controller, task, b)
+            common.log(f'putting response {response} to queue')
+            self._response_queue.put(response)
+
     @measure.log
     def play(self, player: int) -> int:
-        tasks = []
+        num_of_tasks = len(self.board.valid_moves)
         common.log('sent bcast')
         for move in self.board.valid_moves:
             task = Task(-1, self.board.state, move, player)
             self._task_queue.put(task)
-            tasks.append(task)
-        num_of_tasks = len(tasks)
 
         results: List[Result] = []
         for i in range(num_of_tasks):
-            results.append(self._response_queue.get(block=True))
+            results.append(self._response_queue.get())
         results = sorted(results, key=lambda t: t.score, reverse=True)
         return results[0].move
 
@@ -101,12 +123,6 @@ class Slave:
         self.comm = comm
         self.controller = ctl
 
-    @staticmethod
-    def _calc_score(score, total) -> float:
-        if total == 0:
-            return 0
-        return score / total
-
     def run(self):
         while True:
             request = Message(REQUEST_TAG, self.rank)
@@ -118,20 +134,23 @@ class Slave:
                 common.log('exiting')
                 return
 
-            task: Task = message.value
-            state = task.state
-            common.log('received bcast')
-            b = board.Board(state)
-            self.controller.board = b
-
-            common.log(f'received task {task}')
-            node = self.controller.play_node(task.player, b, task.move, task.player, None)
-            if node.status != b.WIN:
-                node = self.controller.compute(task.player * -1)
-            node.move = task.move
-            result = Result(self._calc_score(-node.score, node.total), node.winner, node.loser, node.move)
-            common.log(f'calculated result {result}')
+            result, state = self.work(message.value)
             self.comm.isend(Message(RESULT_TAG, result), dest=0, tag=RESULT_TAG)
             common.log('sent result')
             del state
             del result
+
+    def work(self, task: Task):
+        state = task.state
+        common.log('received bcast')
+        b = board.Board(state)
+        self.controller.board = b
+        common.log(f'received task {task}')
+
+        node = self.controller.play_node(task.player, b, task.move, task.player, None)
+        if node.status != b.WIN:
+            node = self.controller.compute(task.player * -1)
+        node.move = task.move
+        result = Result(common.calculate_score(-node.score, node.total), node.winner, node.loser, node.move)
+        common.log(f'calculated result {result}')
+        return result, state
