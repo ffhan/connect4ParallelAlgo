@@ -1,14 +1,13 @@
-import threading
 import queue
+import threading
+from typing import List
 
-from typing import List, Tuple
-
-import measure
 import numpy as np
 
 import board
 import common
 import controller
+import measure
 import tree
 
 REQUEST_TAG = 50
@@ -61,17 +60,18 @@ class MasterController(controller.Controller):
         self.comm = comm
         self.num_of_processes = num_of_processes
         self.controller = ctl
+        self.controller.board = self.board
 
         self._forward_thread = threading.Thread(target=self._forward_tasks, daemon=True)
         self._recv_thread = threading.Thread(target=self._return_response, daemon=True)
         self._work_thread = threading.Thread(target=self._work, daemon=True)
 
-        self._task_queue = queue.Queue()
-        self._response_queue = queue.Queue()
+        self._task_queue = queue.Queue(maxsize=self.board.width ** self.controller.precompute_depth)
+        self._response_queue = queue.Queue(maxsize=self.board.width ** self.controller.precompute_depth)
 
         self._forward_thread.start()
         self._recv_thread.start()
-        self._work_thread.start()
+        # self._work_thread.start()
 
     def _forward_tasks(self):
         while True:
@@ -92,11 +92,11 @@ class MasterController(controller.Controller):
     def _work(self):
         while True:
             task: Task = self._task_queue.get()
-            common.log(f'got task {task}')
+            # common.log(f'got task {task}')
             b = board.Board(task.state)
             self.controller.board = b
             response = do_work(self.controller, task, self.controller.max_depth - self.controller.precompute_depth)
-            common.log(f'putting response {response} to queue')
+            # common.log(f'putting response {response} to queue')
             self._response_queue.put(response)
 
     @staticmethod
@@ -121,14 +121,14 @@ class MasterController(controller.Controller):
 
     @measure.log
     def play(self, player: int) -> int:
-        common.log('sent bcast')
         root = self.controller.create_tree(self.board.copy(), player, 2)
-        common.log(f'created root {root.tree()}')
+        # common.log(f'created root {root.tree()}')
         tasks = self._create_tasks(root, max_depth=2)
         num_of_tasks = len(tasks)
+
         for task in tasks:
             self._task_queue.put(task)
-            common.log(f'task put on queue: {task}')
+            # common.log(f'task put on queue: {task}')
 
         for i in range(num_of_tasks):
             result = self._response_queue.get()
@@ -137,12 +137,10 @@ class MasterController(controller.Controller):
             root_node.loser = result.loser
             root_node.score = result.score
             root_node.total = result.total
-        print(root.tree())
         max_depth = self.controller.max_depth
         self.controller.max_depth = self.controller.precompute_depth
         result = self.controller.play(player, root)
         self.controller.max_depth = max_depth
-        print(root.tree())
         return result
 
     def done(self):
@@ -159,6 +157,7 @@ class Worker:
         while True:
             request = Message(REQUEST_TAG, self.rank)
             self.comm.isend(request, dest=0, tag=REQUEST_TAG)
+            common.log('sent request')
 
             message: Message = self.comm.recv(source=0)
 
@@ -174,12 +173,11 @@ class Worker:
 
     def _work(self, task: Task):
         state = task.state
-        common.log('received bcast')
         b = board.Board(state)
         self.controller.board = b
         common.log(f'received task {task}')
 
-        result = do_work(self.controller, task, self.controller.max_depth - len(task.moves))
+        result = do_work(self.controller, task, self.controller.max_depth - self.controller.precompute_depth)
         common.log(f'calculated result {result}')
         return result, state
 

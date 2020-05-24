@@ -100,8 +100,12 @@ class ComputerController(Controller):
             if node.children:
                 for child in node.children:
                     new_board = board.Board(np.copy(child.state))
-                    if abs(child.status) == r_board.WIN:
-                        continue
+                    try:
+                        if abs(child.status) == r_board.WIN:
+                            continue
+                    except AttributeError as er:
+                        print(r_board)
+                        raise er
                     if current_depth < max_depth:
                         recurse(player * -1, new_board, current_depth + 1, child)
                     del new_board

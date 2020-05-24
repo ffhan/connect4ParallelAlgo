@@ -42,12 +42,14 @@ class Game:
         return status
 
     def run(self, verbose=False):
+        step_num = 0
         while self.won == 0:
             if len(self.board.valid_moves) == 0:
                 return
             self.step()
-            if verbose:
+            if verbose and step_num % 2 == 1:
                 print(self.board.table())
+            step_num += 1
         print(f'Player {board.remap_char(self.won)} won!')
 
 
