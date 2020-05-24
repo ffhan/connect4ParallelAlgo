@@ -1,8 +1,10 @@
 import abc
-import board
-from board import remap_char
-import tree
 from typing import Tuple, List
+
+import common
+import board
+import tree
+import numpy as np
 
 
 class Controller(abc.ABC):
@@ -39,15 +41,16 @@ class ComputerController(Controller):
     @staticmethod
     def __calc_score(score, total) -> Tuple[float, float]:
         if total == 0:
-            return 0, 0
+            return 0
         # sort first by score, then by min of total
-        return score / total, -total
+        return score / total
 
-    def compute(self, player: int) -> tree.Node:
-        return self._tree(player)
+    def compute(self, player: int, max_depth: int, precomputed_tree: tree.Node = None) -> tree.Node:
+        return self._tree(player, max_depth, root=precomputed_tree)
 
     def play(self, player: int) -> int:
-        root = self.compute(player)
+        root = self.compute(player, self.max_depth)
+        print(*map(lambda t: '{:.3f}'.format(self.__calc_score(t.score, t.total)), root.children))
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
         # print(board.remap_char(player), result)
         # with open('root.txt', 'w') as file:
@@ -55,8 +58,23 @@ class ComputerController(Controller):
         return result[0].move
 
     @staticmethod
-    def play_node(me: int, board: board.Board, move: int, player: int, node: tree.Node):
-        new_node = tree.Node(0, 0, move, remap_char(player), node)
+    def create_tree(b: board.Board, player: int, max_depth) -> tree.Node:
+        def recurse(move: int, board: board.Board, depth: int, current_player: int, node: tree.Node):
+            if move is not None:
+                node = ComputerController.play_node(player, board, move, current_player, node)
+                if abs(node.status) == board.WIN:
+                    return
+            for m in board.valid_moves:
+                if depth < max_depth:
+                    recurse(m, board.copy(), depth + 1, current_player * -1, node)
+
+        node = tree.Node(0, 0, None, b.state, player * -1, None)
+        recurse(None, b, 0, player * -1, node)
+        return node
+
+    @staticmethod
+    def play_node(me: int, board: board.Board, move: int, player: int, node: tree.Node) -> tree.Node:
+        new_node = tree.Node(0, 1, move, board.state, player, node)
         if node:
             node.add(new_node)
         status = board.play(move, player)
@@ -77,18 +95,25 @@ class ComputerController(Controller):
                 new_node.loser = True
         return new_node
 
-    def _tree(self, me: int) -> tree.Node:
-        def recurse(player: int, board: board.Board, current_depth: int, node: tree.Node):
-            valid = board.valid_moves
-
-            for move in valid:
-                new_board = board.copy()
-                new_node = self.play_node(me, new_board, move, player, node)
-                if new_node.status == board.WIN:
-                    continue
-                if current_depth < self.max_depth:
-                    recurse(player * -1, new_board, current_depth + 1, new_node)
-                del new_board
+    def _tree(self, me: int, max_depth: int, root: tree.Node = None) -> tree.Node:
+        def recurse(player: int, r_board: board.Board, current_depth: int, node: tree.Node):
+            if node.children:
+                for child in node.children:
+                    new_board = board.Board(np.copy(child.state))
+                    if abs(child.status) == r_board.WIN:
+                        continue
+                    if current_depth < max_depth:
+                        recurse(player * -1, new_board, current_depth + 1, child)
+                    del new_board
+            else:
+                for move in r_board.valid_moves:
+                    new_board = r_board.copy()
+                    new_node = self.play_node(me, new_board, move, player, node)
+                    if abs(new_node.status) == r_board.WIN:
+                        continue
+                    if current_depth < max_depth:
+                        recurse(player * -1, new_board, current_depth + 1, new_node)
+                    del new_board
             if not (node.winner or node.loser):  # if not directly a winner or a loser (child not a winner or loser)
                 all_winners = True
                 all_losers = True
@@ -117,6 +142,26 @@ class ComputerController(Controller):
                 node.total = total
             # print(node)
 
-        tree_node = tree.Node(0, 0, None, None, None)
-        recurse(me, self.board, 1, tree_node)
-        return tree_node
+        if root is None:
+            root = self.create_tree(self.board.copy(), me, max_depth)
+        recurse(me, self.board, 1, root)
+        return root
+
+
+if __name__ == '__main__':
+    import numpy as np
+    test_board = board.Board(np.array(
+        [
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+        ]
+    ))
+    test_controller = ComputerController(test_board, difficulty=3)
+    test_root = test_controller.create_tree(test_board.copy(), -1, 3)
+    print(test_root.tree())
+    result_node = test_controller.compute(-1, 5, test_root)
+    print(result_node.tree())

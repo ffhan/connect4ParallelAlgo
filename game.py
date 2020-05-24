@@ -89,7 +89,7 @@ def user_vs_user():
 
 def user_vs_computer():
     b = board.Board()
-    game = Game(b, controller.UserController(b), controller.ComputerController(b, difficulty=6))
+    game = Game(b, controller.UserController(b), controller.ComputerController(b, difficulty=4))
     game.run(verbose=True)
 
 
@@ -100,7 +100,9 @@ def computer_vs_computer():
 
 
 if __name__ == '__main__':
+    import common
     # test_1()
     # user_vs_user()
+    common.VERBOSE = True
     user_vs_computer()
     # computer_vs_computer()

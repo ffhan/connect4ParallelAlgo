@@ -3,8 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="fa2379fd-376f-4386-952c-033083ef16c6" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/measure.py" beforeDir="false" afterPath="$PROJECT_DIR$/measure.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/game.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/parallel.py" beforeDir="false" afterPath="$PROJECT_DIR$/parallel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tree.py" beforeDir="false" afterPath="$PROJECT_DIR$/tree.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,13 +14,27 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/board.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="132">
-              <caret line="48" selection-start-line="48" selection-end-line="48" />
+            <state relative-caret-position="95">
+              <caret line="67" selection-start-line="67" selection-end-line="67" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -26,11 +42,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/controller.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
-              <caret line="54" column="29" lean-forward="true" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="29" />
+            <state relative-caret-position="27">
+              <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -41,8 +57,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/parallel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
-              <caret line="92" column="19" lean-forward="true" selection-start-line="92" selection-start-column="19" selection-end-line="92" selection-end-column="19" />
+            <state relative-caret-position="834">
+              <caret line="131" column="32" selection-start-line="131" selection-start-column="32" selection-end-line="131" selection-end-column="32" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -51,19 +67,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/measure.py">
+        <entry file="file://$PROJECT_DIR$/tree.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="53" column="102" selection-start-line="53" selection-start-column="102" selection-end-line="53" selection-end-column="102" />
+            <state relative-caret-position="176">
+              <caret line="32" column="90" selection-start-line="32" selection-start-column="90" selection-end-line="32" selection-end-column="90" />
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mjerenje.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+            <state relative-caret-position="57">
+              <caret line="3" column="23" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -80,8 +99,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="208">
-              <caret line="23" column="78" lean-forward="true" selection-start-line="23" selection-start-column="78" selection-end-line="23" selection-end-column="78" />
+            <state relative-caret-position="226">
+              <caret line="17" column="25" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
               </folding>
@@ -101,8 +120,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/game.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="118">
-              <caret line="33" column="20" selection-start-line="33" selection-start-column="20" selection-end-line="33" selection-end-column="20" />
+            <state relative-caret-position="87">
+              <caret line="91" column="94" selection-start-line="91" selection-start-column="94" selection-end-line="91" selection-end-column="94" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -121,7 +140,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>loser True</find>
       <find>True</find>
       <find>Node score 0 total 7 move 3</find>
       <find>0, 3, 1, 5</find>
@@ -130,15 +148,19 @@
       <find>[2, 3, 0, 3</find>
       <find>\[0, ., 0, ., .\]</find>
       <find>\[0</find>
-      <find>\[1,</find>
       <find>\[1, 3, ., 3</find>
       <find>\[3, ., 3, ., 3</find>
       <find>\[1, 1</find>
       <find>node</find>
       <find>print</find>
+      <find>1</find>
+      <find>self</find>
+      <find>\[1,</find>
+      <find>loser True</find>
     </findStrings>
     <replaceStrings>
       <replace>common.log</replace>
+      <replace>-1</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -150,26 +172,25 @@
         <option value="$PROJECT_DIR$/connect4.py" />
         <option value="$PROJECT_DIR$/user_controller.py" />
         <option value="$PROJECT_DIR$/board.py" />
-        <option value="$PROJECT_DIR$/tree.py" />
         <option value="$PROJECT_DIR$/master.py" />
         <option value="$PROJECT_DIR$/run_bcast.sh" />
         <option value="$PROJECT_DIR$/bcast_test.py" />
         <option value="$PROJECT_DIR$/hostfile" />
-        <option value="$PROJECT_DIR$/game.py" />
         <option value="$PROJECT_DIR$/run.sh" />
         <option value="$PROJECT_DIR$/mjerenja.py" />
-        <option value="$PROJECT_DIR$/controller.py" />
         <option value="$PROJECT_DIR$/multitest.py" />
         <option value="$PROJECT_DIR$/common.py" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/parallel.py" />
         <option value="$PROJECT_DIR$/measure.py" />
+        <option value="$PROJECT_DIR$/parallel.py" />
+        <option value="$PROJECT_DIR$/tree.py" />
+        <option value="$PROJECT_DIR$/game.py" />
+        <option value="$PROJECT_DIR$/controller.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="765" />
-    <option name="y" value="32" />
+    <option name="x" value="227" />
     <option name="width" value="960" />
     <option name="height" value="1048" />
   </component>
@@ -212,8 +233,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.multitest">
-    <configuration name="connect4" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.game">
+    <configuration name="controller" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="lab2" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -226,7 +247,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/board.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/controller.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -257,28 +278,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="mjerenja" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="lab2" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/measure.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="multitest" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="lab2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -293,6 +292,28 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/multitest.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="parallel" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="lab2" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/parallel.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -325,11 +346,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.multitest" />
-        <item itemvalue="Python.mjerenja" />
         <item itemvalue="Python.game" />
+        <item itemvalue="Python.controller" />
+        <item itemvalue="Python.parallel" />
         <item itemvalue="Python.tree" />
-        <item itemvalue="Python.connect4" />
+        <item itemvalue="Python.multitest" />
       </list>
     </recent_temporary>
   </component>
@@ -344,7 +365,8 @@
       <option name="presentableId" value="Default" />
       <updated>1590055681298</updated>
       <workItem from="1590055682440" duration="27079000" />
-      <workItem from="1590175552308" duration="34252000" />
+      <workItem from="1590175552308" duration="38017000" />
+      <workItem from="1590336086993" duration="11292000" />
     </task>
     <task id="LOCAL-00001" summary="board implementation">
       <created>1590060718911</created>
@@ -444,11 +466,18 @@
       <option name="project" value="LOCAL" />
       <updated>1590256735689</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="measures done">
+      <created>1590258773382</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1590258773382</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="61331000" />
+    <option name="totallyTimeSpent" value="76388000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="32" width="1920" height="1048" extended-state="6" />
@@ -459,7 +488,30 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32934782" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3195652" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.67065215" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4478261" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32934782" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.17717391" />
+      <window_info anchor="bottom" id="Python Console" order="12" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" weight="0.32977587" />
+      <window_info anchor="right" id="SciView" order="4" weight="0.32977587" />
+    </layout>
+    <layout-to-restore>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12219851" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32934782" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.6347826" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.38586956" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -468,36 +520,13 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32934782" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.4978261" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.29891303" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="SciView" order="3" weight="0.32977587" />
       <window_info anchor="right" id="Database" order="4" />
-    </layout>
-    <layout-to-restore>
-      <window_info id="Favorites" order="0" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.12166489" />
-      <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Docker" order="0" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="1" weight="0.329718" />
-      <window_info anchor="bottom" id="Event Log" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Database Changes" order="3" />
-      <window_info anchor="bottom" id="Version Control" order="4" />
-      <window_info anchor="bottom" id="Python Console" order="5" />
-      <window_info anchor="bottom" id="Message" order="6" />
-      <window_info anchor="bottom" id="Find" order="7" weight="0.329718" />
-      <window_info active="true" anchor="bottom" id="Run" order="8" visible="true" weight="0.4021739" />
-      <window_info anchor="bottom" id="Debug" order="9" weight="0.11413044" />
-      <window_info anchor="bottom" id="Cvs" order="10" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="11" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="12" />
-      <window_info anchor="right" id="Database" order="0" />
-      <window_info anchor="right" id="SciView" order="1" visible="true" weight="0.32977587" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="2" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="3" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="4" weight="0.25" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -518,35 +547,38 @@
     <MESSAGE value="measuring" />
     <MESSAGE value="multithreading" />
     <MESSAGE value="working parallelism" />
-    <option name="LAST_COMMIT_MESSAGE" value="working parallelism" />
+    <MESSAGE value="measures done" />
+    <option name="LAST_COMMIT_MESSAGE" value="measures done" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/board.py</url>
-          <line>155</line>
-          <option name="timeStamp" value="4" />
+          <url>file://$PROJECT_DIR$/tree.py</url>
+          <line>28</line>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/board.py</url>
-          <line>80</line>
-          <option name="timeStamp" value="18" />
+          <url>file://$PROJECT_DIR$/controller.py</url>
+          <line>108</line>
+          <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/board.py</url>
-          <line>100</line>
-          <option name="timeStamp" value="19" />
+          <url>file://$PROJECT_DIR$/controller.py</url>
+          <line>53</line>
+          <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/lab2$tree.coverage" NAME="tree Coverage Results" MODIFIED="1590177424770" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/lab2$tree.coverage" NAME="tree Coverage Results" MODIFIED="1590340679900" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/lab2$connect4.coverage" NAME="connect4 Coverage Results" MODIFIED="1590061560525" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/lab2$game.coverage" NAME="game Coverage Results" MODIFIED="1590247712732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/lab2$parallel.coverage" NAME="parallel Coverage Results" MODIFIED="1590343575069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/lab2$game.coverage" NAME="game Coverage Results" MODIFIED="1590347344271" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/lab2$mjerenja.coverage" NAME="mjerenja Coverage Results" MODIFIED="1590251679985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/lab2$multitest.coverage" NAME="multitest Coverage Results" MODIFIED="1590254939033" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/lab2$controller.coverage" NAME="controller Coverage Results" MODIFIED="1590346160055" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="breakpointCondition">
@@ -562,6 +594,21 @@
       </expression>
     </expressions>
     <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>moves[1:]`</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>moves[1:]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>self._children_map[moves[0]]</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>self.state[row + 1, col]</expression-string>
         <language-id>Python</language-id>
@@ -606,28 +653,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tree.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-247">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/bcast_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="11" column="27" selection-start-line="11" selection-start-column="27" selection-end-line="11" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/root.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-      <provider editor-type-id="LargeFileEditor">
-        <state relative-caret-position="133">
-          <caret line="7" column="58" selection-start-line="7" selection-start-column="58" selection-end-line="7" selection-end-column="58" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/bcast_test.py" />
     <entry file="file://$PROJECT_DIR$/hostfile">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -642,36 +668,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/run.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/game.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="118">
-          <caret line="33" column="20" selection-start-line="33" selection-start-column="20" selection-end-line="33" selection-end-column="20" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mjerenja.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controller.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="54" column="29" lean-forward="true" selection-start-line="54" selection-start-column="29" selection-end-line="54" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/mjerenja.txt" />
     <entry file="file://$PROJECT_DIR$/multitest.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="247">
@@ -689,6 +686,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/measure.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1007">
+          <caret line="53" column="102" selection-start-line="53" selection-start-column="102" selection-end-line="53" selection-end-column="102" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mjerenje.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="23" selection-start-line="3" selection-start-column="23" selection-end-line="3" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/common.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="152">
@@ -696,10 +707,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/run.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="2" column="27" selection-start-line="2" selection-start-column="27" selection-end-line="2" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="23" column="78" lean-forward="true" selection-start-line="23" selection-start-column="78" selection-end-line="23" selection-end-column="78" />
+        <state relative-caret-position="226">
+          <caret line="17" column="25" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="25" />
           <folding>
             <element signature="e#0#22#0" expanded="true" />
           </folding>
@@ -708,35 +726,58 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/board.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="132">
-          <caret line="48" selection-start-line="48" selection-end-line="48" />
+        <state relative-caret-position="95">
+          <caret line="67" selection-start-line="67" selection-end-line="67" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/tree.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="32" column="90" selection-start-line="32" selection-start-column="90" selection-end-line="32" selection-end-column="90" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/root.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="133">
+          <caret line="139" column="31" selection-start-line="139" selection-start-column="31" selection-end-line="139" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/game.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="87">
+          <caret line="91" column="94" selection-start-line="91" selection-start-column="94" selection-end-line="91" selection-end-column="94" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/parallel.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="92" column="19" lean-forward="true" selection-start-line="92" selection-start-column="19" selection-end-line="92" selection-end-column="19" />
+        <state relative-caret-position="834">
+          <caret line="131" column="32" selection-start-line="131" selection-start-column="32" selection-end-line="131" selection-end-column="32" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/measure.py">
+    <entry file="file://$PROJECT_DIR$/controller.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="53" column="102" selection-start-line="53" selection-start-column="102" selection-end-line="53" selection-end-column="102" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mjerenje.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+        <state relative-caret-position="27">
+          <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

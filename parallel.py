@@ -1,7 +1,7 @@
 import threading
 import queue
 
-from typing import List
+from typing import List, Tuple
 
 import measure
 import numpy as np
@@ -9,6 +9,7 @@ import numpy as np
 import board
 import common
 import controller
+import tree
 
 REQUEST_TAG = 50
 TASK_TAG = 101
@@ -26,14 +27,14 @@ class Message:
 
 
 class Task:
-    def __init__(self, worker: int, state: np.ndarray, move: int, player: int):
+    def __init__(self, worker: int, state: np.ndarray, moves: List[int], player: int):
         self.player = player
-        self.move = move
+        self.moves = moves
         self.worker = worker
         self.state = state
 
     def __repr__(self) -> str:
-        return f'Task(player: {self.player}, move: {self.move}, worker:{self.worker})'
+        return f'Task(player: {self.player}, moves: {self.moves}, worker:{self.worker})'
 
 
 class Result:
@@ -47,20 +48,17 @@ class Result:
         return f'Result(score: {self.score}, winner: {self.winner}, loser: {self.loser}, move: {self.move})'
 
 
-def do_work(controller: controller.ComputerController, task: Task, board: board.Board) -> Result:
-    node = controller.play_node(task.player, board, task.move, task.player, None)
-    if node.status != board.WIN:
-        node = controller.compute(task.player * -1)
-    node.move = task.move
+def do_work(controller: controller.ComputerController, task: Task, max_depth: int) -> Result:
+    node = controller.compute(task.player * -1, max_depth)
     return Result(common.calculate_score(-node.score, node.total), node.winner, node.loser, node.move)
 
 
 class MasterController(controller.Controller):
-    def __init__(self, comm, num_of_processes, board, controller):
-        super().__init__(board)
+    def __init__(self, comm, num_of_processes, b: board.Board, ctl: controller.ComputerController):
+        super().__init__(b)
         self.comm = comm
         self.num_of_processes = num_of_processes
-        self.controller = controller
+        self.controller = ctl
 
         self._forward_thread = threading.Thread(target=self._forward_tasks, daemon=True)
         self._recv_thread = threading.Thread(target=self._return_response, daemon=True)
@@ -95,22 +93,44 @@ class MasterController(controller.Controller):
             common.log(f'got task {task}')
             b = board.Board(task.state)
             self.controller.board = b
-            response = do_work(self.controller, task, b)
+            response = do_work(self.controller, task, self.controller.max_depth - len(task.moves))
             common.log(f'putting response {response} to queue')
             self._response_queue.put(response)
 
+    @staticmethod
+    def _create_tasks(root: tree.Node, max_depth=2) -> List[Task]:
+        def recurse(existing_moves: List[int], move: int, depth: int, node: tree.Node) -> List[Task]:
+            result = []
+            if move is not None:
+                existing_moves.append(move)
+            for child in node.children:
+                m = child.move
+                if depth < max_depth:
+                    result += recurse(existing_moves.copy(), m, depth + 1, child)
+                else:
+                    result.append(Task(None, child.state, existing_moves.copy() + [m], child.player))
+            if not node.children:
+                return [Task(None, node.state, existing_moves.copy(), node.player)]
+            return result
+
+        return recurse([], None, 1, root)
+
     @measure.log
     def play(self, player: int) -> int:
-        num_of_tasks = len(self.board.valid_moves)
         common.log('sent bcast')
-        for move in self.board.valid_moves:
-            task = Task(-1, np.copy(self.board.state), move, player)
+        root = self.controller.create_tree(self.board.copy(), player, 2)
+        common.log(f'created root {root.tree()}')
+        tasks = self._create_tasks(root, max_depth=2)
+        num_of_tasks = len(tasks)
+        for task in tasks:
             self._task_queue.put(task)
+            common.log(f'task put on queue: {task}')
 
         results: List[Result] = []
         for i in range(num_of_tasks):
             results.append(self._response_queue.get())
         results = sorted(results, key=lambda t: t.score, reverse=True)
+        print(results)
         return results[0].move
 
     def done(self):
@@ -147,6 +167,27 @@ class Slave:
         self.controller.board = b
         common.log(f'received task {task}')
 
-        result = do_work(self.controller, task, b)
+        result = do_work(self.controller, task, b, self.controller.max_depth - len(task.moves))
         common.log(f'calculated result {result}')
         return result, state
+
+
+if __name__ == '__main__':
+    b = board.Board(state=np.array(
+        [
+            [1, 1, 0, 0, 0, 0, 1],
+            [1, 1, 0, 1, 0, -1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1],
+         ]
+    ))
+    root = controller.ComputerController.create_tree(b, 1, 3)
+    print(root.tree())
+    tasks = MasterController._create_tasks(root, max_depth=3)
+    for task in tasks:
+        print(task)
+    print(b.table())
+    print(root.get_move(5, 4, 4).chain())
+    # print(controller.ComputerController.create_tree(b, 1, 2).tree())
