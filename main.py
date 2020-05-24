@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     common.VERBOSE = True
 
-    ctl = controller.ComputerController(None, max_depth - 1)
+    ctl = controller.ComputerController(None, max_depth, precompute_depth=2)
     if rank == 0:
         common.log('initializing master')
         board = board.Board()
@@ -27,6 +27,6 @@ if __name__ == '__main__':
         master.done()
     else:
         common.log(f'initializing slave {rank}')
-        slave = parallel.Slave(rank, comm, ctl)
+        slave = parallel.Worker(rank, comm, ctl)
         slave.run()
         common.log(f'slave {rank} exited')

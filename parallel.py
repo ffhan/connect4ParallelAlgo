@@ -38,19 +38,21 @@ class Task:
 
 
 class Result:
-    def __init__(self, score: float, winner: bool, loser: bool, move: int):
+    def __init__(self, score: int, total: int, winner: bool, loser: bool, moves: List[int]):
         self.score = score
+        self.total = total
         self.winner = winner
         self.loser = loser
-        self.move = move
+        self.moves = moves
 
     def __repr__(self) -> str:
-        return f'Result(score: {self.score}, winner: {self.winner}, loser: {self.loser}, move: {self.move})'
+        return f'Result(score: {self.score}, winner: {self.winner}, loser: {self.loser}, move: {self.moves})'
 
 
 def do_work(controller: controller.ComputerController, task: Task, max_depth: int) -> Result:
-    node = controller.compute(task.player * -1, max_depth)
-    return Result(common.calculate_score(-node.score, node.total), node.winner, node.loser, node.move)
+    node = controller.compute(-task.player * (-1) ** controller.precompute_depth, max_depth)
+    node.move = task.moves[-1]
+    return Result(node.score, node.total, node.winner, node.loser, task.moves)
 
 
 class MasterController(controller.Controller):
@@ -93,7 +95,7 @@ class MasterController(controller.Controller):
             common.log(f'got task {task}')
             b = board.Board(task.state)
             self.controller.board = b
-            response = do_work(self.controller, task, self.controller.max_depth - len(task.moves))
+            response = do_work(self.controller, task, self.controller.max_depth - self.controller.precompute_depth)
             common.log(f'putting response {response} to queue')
             self._response_queue.put(response)
 
@@ -101,6 +103,8 @@ class MasterController(controller.Controller):
     def _create_tasks(root: tree.Node, max_depth=2) -> List[Task]:
         def recurse(existing_moves: List[int], move: int, depth: int, node: tree.Node) -> List[Task]:
             result = []
+            if node.winner or node.loser:
+                return result
             if move is not None:
                 existing_moves.append(move)
             for child in node.children:
@@ -126,18 +130,26 @@ class MasterController(controller.Controller):
             self._task_queue.put(task)
             common.log(f'task put on queue: {task}')
 
-        results: List[Result] = []
         for i in range(num_of_tasks):
-            results.append(self._response_queue.get())
-        results = sorted(results, key=lambda t: t.score, reverse=True)
-        print(results)
-        return results[0].move
+            result = self._response_queue.get()
+            root_node = root.get_move(*result.moves)
+            root_node.winner = result.winner
+            root_node.loser = result.loser
+            root_node.score = result.score
+            root_node.total = result.total
+        print(root.tree())
+        max_depth = self.controller.max_depth
+        self.controller.max_depth = self.controller.precompute_depth
+        result = self.controller.play(player, root)
+        self.controller.max_depth = max_depth
+        print(root.tree())
+        return result
 
     def done(self):
         self.comm.bcast(Message(DONE_TAG, True), root=0)
 
 
-class Slave:
+class Worker:
     def __init__(self, rank: int, comm, ctl: controller.ComputerController):
         self.rank = rank
         self.comm = comm
@@ -167,7 +179,7 @@ class Slave:
         self.controller.board = b
         common.log(f'received task {task}')
 
-        result = do_work(self.controller, task, b, self.controller.max_depth - len(task.moves))
+        result = do_work(self.controller, task, self.controller.max_depth - len(task.moves))
         common.log(f'calculated result {result}')
         return result, state
 

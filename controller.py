@@ -34,9 +34,10 @@ class UserController(Controller):
 
 
 class ComputerController(Controller):
-    def __init__(self, board: board.Board, difficulty=7):
+    def __init__(self, board: board.Board, difficulty=7, precompute_depth=0):
         super().__init__(board)
         self.max_depth = difficulty
+        self.precompute_depth = precompute_depth
 
     @staticmethod
     def __calc_score(score, total) -> Tuple[float, float]:
@@ -48,11 +49,10 @@ class ComputerController(Controller):
     def compute(self, player: int, max_depth: int, precomputed_tree: tree.Node = None) -> tree.Node:
         return self._tree(player, max_depth, root=precomputed_tree)
 
-    def play(self, player: int) -> int:
-        root = self.compute(player, self.max_depth)
+    def play(self, player: int, precomputed_tree: tree.Node = None) -> int:
+        root = self.compute(player, self.max_depth, precomputed_tree)
         print(*map(lambda t: '{:.3f}'.format(self.__calc_score(t.score, t.total)), root.children))
         result = sorted(root.children, key=lambda t: self.__calc_score(t.score, t.total), reverse=True)
-        # print(board.remap_char(player), result)
         # with open('root.txt', 'w') as file:
         #     file.write(root.tree())
         return result[0].move
@@ -74,10 +74,10 @@ class ComputerController(Controller):
 
     @staticmethod
     def play_node(me: int, board: board.Board, move: int, player: int, node: tree.Node) -> tree.Node:
+        status = board.play(move, player)
         new_node = tree.Node(0, 1, move, board.state, player, node)
         if node:
             node.add(new_node)
-        status = board.play(move, player)
         new_node.status = status
         if status == board.WIN:
             if player == me:
@@ -142,6 +142,7 @@ class ComputerController(Controller):
                 node.total = total
             # print(node)
 
+        common.log(f'tree with root {root}')
         if root is None:
             root = self.create_tree(self.board.copy(), me, max_depth)
         recurse(me, self.board, 1, root)
