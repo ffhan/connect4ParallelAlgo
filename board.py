@@ -1,14 +1,29 @@
 import numpy as np
+import common
 from typing import List
 
 
-def remap_char(value: int) -> str:
+def _remap_char(value: int) -> str:
     if value == Board.PLAYER_1:
         return 'o'
     elif value == Board.PLAYER_2:
         return 'x'
     else:
         return ' '
+
+
+def _official_char(value: int) -> str:
+    if value == Board.PLAYER_1:
+        return 'P'
+    elif value == Board.PLAYER_2:
+        return 'C'
+    return '='
+
+
+if common.VERBOSE:
+    remap_char = _remap_char
+else:
+    remap_char = _official_char
 
 
 class Board:
@@ -65,6 +80,8 @@ class Board:
         :param player: player index
         :return: move status
         '''
+        if not (0 <= col < self.width):
+            return Board.INVALID_MOVE
         row = self.last_rows[col]
         if player != Board.PLAYER_1 and player != Board.PLAYER_2:
             raise Exception(f'invalid player {player}')
@@ -137,6 +154,18 @@ class Board:
         return max_count
 
     def table(self):
+        if common.VERBOSE:
+            return self._table()
+        return self._official_table()
+
+    def _official_table(self):
+        fmt_string = '{}' * Board.width
+        result = ''
+        for row in self.state:
+            result += fmt_string.format(*list(map(remap_char, row))) + '\n'
+        return result[:-1]
+
+    def _table(self):
         horizontal_border = '\u2550'
         vertical_border = '\u2551'
         top_left_border = '\u256C'

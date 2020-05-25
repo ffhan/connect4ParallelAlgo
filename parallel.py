@@ -64,14 +64,12 @@ class MasterController(controller.Controller):
 
         self._forward_thread = threading.Thread(target=self._forward_tasks, daemon=True)
         self._recv_thread = threading.Thread(target=self._return_response, daemon=True)
-        self._work_thread = threading.Thread(target=self._work, daemon=True)
 
         self._task_queue = queue.Queue(maxsize=self.board.width ** self.controller.precompute_depth)
         self._response_queue = queue.Queue(maxsize=self.board.width ** self.controller.precompute_depth)
 
         self._forward_thread.start()
         self._recv_thread.start()
-        # self._work_thread.start()
 
     def _forward_tasks(self):
         while True:
@@ -144,7 +142,9 @@ class MasterController(controller.Controller):
         return result
 
     def done(self):
-        self.comm.bcast(Message(DONE_TAG, True), root=0)
+        for i in range(1, self.num_of_processes + 1):
+            self.comm.send(Message(DONE_TAG, True), dest=i, tag=DONE_TAG)
+
 
 
 class Worker:
@@ -162,7 +162,7 @@ class Worker:
             message: Message = self.comm.recv(source=0)
 
             if message.tag == DONE_TAG:
-                common.log('exiting')
+                print('exiting')
                 return
 
             result, state = self._work(message.value)

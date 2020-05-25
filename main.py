@@ -27,8 +27,10 @@ if __name__ == '__main__':
         game = game.Game(board, controller.UserController(board), master)
         game.run(verbose=True)
         master.done()
+        MPI.Finalize()
     else:
         common.log(f'initializing worker {rank}')
         worker = parallel.Worker(rank, comm, ctl)
         worker.run()
         common.log(f'worker {rank} exited')
+        MPI.Finalize()
