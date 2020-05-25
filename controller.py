@@ -75,6 +75,7 @@ class ComputerController(Controller):
     @staticmethod
     def play_node(me: int, board: board.Board, move: int, player: int, node: tree.Node) -> tree.Node:
         status = board.play(move, player)
+        total_valid_moves_after_play = len(board.valid_moves)
         new_node = tree.Node(0, 1, move, board.state, player, node)
         if node:
             node.add(new_node)
@@ -84,14 +85,14 @@ class ComputerController(Controller):
                 if node:
                     node.winner = True
                 new_node.winner = True
-                new_node.score = board.WIN
-                new_node.total = 1
+                new_node.score = board.WIN * total_valid_moves_after_play
+                new_node.total = total_valid_moves_after_play
                 # print(move, 'wins the game!')
             else:
                 if node:
                     node.loser = True
-                new_node.score = board.LOSS
-                new_node.total = 1
+                new_node.score = board.LOSS * total_valid_moves_after_play
+                new_node.total = total_valid_moves_after_play
                 new_node.loser = True
         return new_node
 

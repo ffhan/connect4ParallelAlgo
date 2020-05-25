@@ -20,10 +20,11 @@ def _official_char(value: int) -> str:
     return '='
 
 
-if common.VERBOSE:
-    remap_char = _remap_char
-else:
-    remap_char = _official_char
+def remap_char(value: int) -> str:
+    if common.PPRINT:
+        return _remap_char(value)
+    else:
+        return _official_char(value)
 
 
 class Board:
@@ -54,6 +55,11 @@ class Board:
 
         :param state: board state
         '''
+        if common.PPRINT:
+            self.table = self._table
+        else:
+            self.table = self._official_table
+
         # 0 - unplayed field
         # 1 - player 1
         # -1 - player 2 (opponent)
@@ -152,11 +158,6 @@ class Board:
                 break
             max_count += 1
         return max_count
-
-    def table(self):
-        if common.VERBOSE:
-            return self._table()
-        return self._official_table()
 
     def _official_table(self):
         fmt_string = '{}' * Board.width

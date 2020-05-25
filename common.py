@@ -1,4 +1,5 @@
 VERBOSE = False
+PPRINT = False
 
 
 def log(*values):
