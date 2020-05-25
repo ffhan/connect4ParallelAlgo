@@ -62,30 +62,41 @@ class MasterController(controller.Controller):
         self.controller = ctl
         self.controller.board = self.board
 
-        self._forward_thread = threading.Thread(target=self._forward_tasks, daemon=True)
-        self._recv_thread = threading.Thread(target=self._return_response, daemon=True)
+        self._recv_thread = threading.Thread(target=self._recv_msg)
 
-        self._task_queue = queue.Queue(maxsize=self.board.width ** self.controller.precompute_depth)
-        self._response_queue = queue.Queue(maxsize=self.board.width ** self.controller.precompute_depth)
+        self._task_queue = queue.Queue()
+        self._request_queue = queue.Queue()
+        self._response_queue = queue.Queue()
 
-        self._forward_thread.start()
+        self.stopped = False
+
         self._recv_thread.start()
 
-    def _forward_tasks(self):
+    def _recv_msg(self):
+        totals = [0, 0]
         while True:
-            request: Message = self.comm.recv(tag=REQUEST_TAG)
-            common.log(f'got request from {request.value}')
-            worker = request.value
-            task = self._task_queue.get()
-            task.worker = worker
-            self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
-            common.log(f'sent task to {task.worker}')
+            msg: Message = self.comm.recv()
+            common.log(f'got message {msg}')
+            if msg.tag == DONE_TAG:
+                common.log('detected done - exiting')
+                return
+            elif msg.tag == REQUEST_TAG:
+                totals[0] += 1
+                common.log(f'got request from {msg.value} {totals[0]}')
+                self._request_queue.put(msg.value)
+            elif msg.tag == RESULT_TAG:
+                totals[1] += 1
+                common.log(f'received result ({totals[1]})')
+                self._return_response(msg.value)
+            else:
+                raise Exception(msg)
 
-    def _return_response(self):
-        while True:
-            result: Message = self.comm.recv(tag=RESULT_TAG)
-            common.log(f'received result')
-            self._response_queue.put(result.value)
+    def _forward_task(self, task: Task):
+        self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
+        common.log(f'sent task to {task.worker}')
+
+    def _return_response(self, result: Result):
+        self._response_queue.put(result, block=False)
 
     def _work(self):
         while True:
@@ -125,7 +136,9 @@ class MasterController(controller.Controller):
         num_of_tasks = len(tasks)
 
         for task in tasks:
-            self._task_queue.put(task)
+            worker = self._request_queue.get()
+            task.worker = worker
+            self._forward_task(task)
             # common.log(f'task put on queue: {task}')
 
         for i in range(num_of_tasks):
@@ -142,9 +155,9 @@ class MasterController(controller.Controller):
         return result
 
     def done(self):
-        for i in range(1, self.num_of_processes + 1):
+        self.stopped = True
+        for i in range(0, self.num_of_processes + 1):
             self.comm.send(Message(DONE_TAG, True), dest=i, tag=DONE_TAG)
-
 
 
 class Worker:
@@ -162,7 +175,7 @@ class Worker:
             message: Message = self.comm.recv(source=0)
 
             if message.tag == DONE_TAG:
-                print('exiting')
+                common.log('exiting')
                 return
 
             result, state = self._work(message.value)
