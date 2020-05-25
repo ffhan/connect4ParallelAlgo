@@ -18,7 +18,7 @@ if __name__ == '__main__':
     rank = comm.Get_rank()
 
     common.VERBOSE = False
-    common.PPRINT = True
+    common.PPRINT = False
 
     ctl = controller.ComputerController(None, max_depth, precompute_depth=2)
     if rank == 0:
