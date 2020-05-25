@@ -10,7 +10,7 @@ if __name__ == '__main__':
     import sys
 
     total_processes = int(sys.argv[1])
-    num_of_workers = total_processes - 1 # minus the master
+    num_of_workers = total_processes - 1  # minus the master
 
     max_depth = int(sys.argv[2])
 
@@ -20,16 +20,17 @@ if __name__ == '__main__':
     common.VERBOSE = False
     common.PPRINT = False
 
-    ctl = controller.ComputerController(None, max_depth, precompute_depth=2)
-    if rank == 0:
+    ctl = controller.ComputerController(None, max_depth,
+                                        precompute_depth=2)  # pre-compute depth for controller is 2 (max 49 tasks)
+    if rank == 0:  # code for master
         common.log('initializing master')
         board = board.Board()
-        master = parallel.MasterController(comm, num_of_workers, board, ctl)
+        master = parallel.MasterController(comm, num_of_workers, board, ctl)  # initialize master
         game = game.Game(board, controller.UserController(board), master)
-        game.run(verbose=True)
-        master.done()
-    else:
+        game.run(verbose=True)  # run game loop
+        master.done()  # indicate MPI ending
+    else:  # code for worker
         common.log(f'initializing worker {rank}')
-        worker = parallel.Worker(rank, comm, ctl)
+        worker = parallel.Worker(rank, comm, ctl)  # initialize worker
         worker.run()
         common.log(f'worker {rank} exited')

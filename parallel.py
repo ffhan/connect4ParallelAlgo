@@ -10,13 +10,17 @@ import controller
 import measure
 import tree
 
-REQUEST_TAG = 50
-TASK_TAG = 101
-RESULT_TAG = 102
-DONE_TAG = 103
+REQUEST_TAG = 50  # tag used for request messages
+TASK_TAG = 101  # tag used for task messages
+RESULT_TAG = 102  # tag used for result messages
+DONE_TAG = 103  # tag used for indicating run end
 
 
 class Message:
+    """
+    Message envelope
+    """
+
     def __init__(self, tag, value):
         self.tag = tag
         self.value = value
@@ -26,6 +30,10 @@ class Message:
 
 
 class Task:
+    """
+    Task that has to be computed on the worker.
+    """
+
     def __init__(self, worker: int, state: np.ndarray, moves: List[int], player: int):
         self.player = player
         self.moves = moves
@@ -37,6 +45,10 @@ class Task:
 
 
 class Result:
+    """
+    Computation result returned from the worker.
+    """
+
     def __init__(self, score: int, total: int, winner: bool, loser: bool, moves: List[int]):
         self.score = score
         self.total = total
@@ -49,12 +61,30 @@ class Result:
 
 
 def do_work(controller: controller.ComputerController, task: Task, max_depth: int) -> Result:
+    """
+    Does the computation work represented by the Task.
+
+    :param controller: computer controller that will do the computation.
+    :param task: task that has to be executed
+    :param max_depth: maximum score tree depth to be computed on the worker
+    :return: computed result
+    """
+    # compute for player -(-1)^(precomputed tree depth), compute max depth on the worker
     node = controller.compute(-task.player * (-1) ** controller.precompute_depth, max_depth)
-    node.move = task.moves[-1]
+    node.move = task.moves[-1]  # subtree root node move is last task move
     return Result(node.score, node.total, node.winner, node.loser, task.moves)
 
 
 class MasterController(controller.Controller):
+    """
+    Controller run on the master node.
+    It uses a computer controller to create a pre-computed tree, create tasks, send them to workers,
+    collect results and then compute the final score -> turning the pre-computed tree into a score tree.
+
+    It's also possible to run work on the master node, but it's currently disabled because Pythons' GIL
+    slows communication with other nodes considerably.
+    """
+
     def __init__(self, comm, num_of_processes, b: board.Board, ctl: controller.ComputerController):
         super().__init__(b)
         self.comm = comm
@@ -73,9 +103,13 @@ class MasterController(controller.Controller):
         self._recv_thread.start()
 
     def _recv_msg(self):
+        """
+        Receive messages and act accordingly to the tag.
+        :return:
+        """
         totals = [0, 0]
         while True:
-            msg: Message = self.comm.recv()
+            msg: Message = self.comm.recv()  # receive any message tag
             common.log(f'got message {msg}')
             if msg.tag == DONE_TAG:
                 common.log('detected done - exiting')
@@ -92,13 +126,29 @@ class MasterController(controller.Controller):
                 raise Exception(msg)
 
     def _forward_task(self, task: Task):
+        """
+        Send a task to a worker.
+
+        :param task: task to execute on the worker
+        :return:
+        """
         self.comm.isend(Message(TASK_TAG, task), dest=task.worker, tag=TASK_TAG)
         common.log(f'sent task to {task.worker}')
 
     def _return_response(self, result: Result):
+        """
+        Put Result in response queue.
+        :param result: received computation result
+        :return:
+        """
         self._response_queue.put(result, block=False)
 
     def _work(self):
+        """
+        Do the work on the master node.
+        Not recommended for usage.
+        :return:
+        """
         while True:
             task: Task = self._task_queue.get()
             # common.log(f'got task {task}')
@@ -110,6 +160,14 @@ class MasterController(controller.Controller):
 
     @staticmethod
     def _create_tasks(root: tree.Node, max_depth=2) -> List[Task]:
+        """
+        Create tasks from the pre-computed tree.
+
+        :param root: root node of the tree
+        :param max_depth: maximum pre-compute depth (in case we have a deeper tree)
+        :return: list of tasks
+        """
+
         def recurse(existing_moves: List[int], move: int, depth: int, node: tree.Node) -> List[Task]:
             result = []
             if node.winner or node.loser:
@@ -130,17 +188,33 @@ class MasterController(controller.Controller):
 
     @measure.log
     def play(self, player: int) -> int:
+        """
+        Selects an optimal move based on the board state and the current player ID.
+
+        It creates a pre-computed tree on the master, then creates tasks based on that tree.
+        Each task is actually a leaf node in the pre-computed tree.
+        Afterwards it sends tasks to workers and applies results (scores) to the pre-computed tree created before,
+        effectively creating a score tree.
+        Finally, it chooses the optimal move for the board state based on the score tree.
+
+        :param player: current player ID
+        :return: optimal move
+        """
+        # create a pre-computed tree of depth 2
         root = self.controller.create_tree(self.board.copy(), player, 2)
         # common.log(f'created root {root.tree()}')
+        # create tasks from the pre-computed tree (1 task for 1 leaf node)
         tasks = self._create_tasks(root, max_depth=2)
         num_of_tasks = len(tasks)
 
+        # send out tasks
         for task in tasks:
             worker = self._request_queue.get()
             task.worker = worker
             self._forward_task(task)
             # common.log(f'task put on queue: {task}')
 
+        # update pre-computed tree from results
         for i in range(num_of_tasks):
             result = self._response_queue.get()
             root_node = root.get_move(*result.moves)
@@ -148,43 +222,71 @@ class MasterController(controller.Controller):
             root_node.loser = result.loser
             root_node.score = result.score
             root_node.total = result.total
+
+        # set controller max depth to be pre-compute depth
+        # (because we want to score only the existing nodes, not generate new ones)
         max_depth = self.controller.max_depth
         self.controller.max_depth = self.controller.precompute_depth
+        # compute the optimal move based on the pre-computed tree
         result = self.controller.play(player, root)
+        # revert controller max depth
         self.controller.max_depth = max_depth
         return result
 
     def done(self):
+        """
+        Stop all local threads and workers.
+        :return:
+        """
         self.stopped = True
-        for i in range(0, self.num_of_processes + 1):
+        for i in range(0, self.num_of_processes + 1):  # send to every node including ourselves
             self.comm.send(Message(DONE_TAG, True), dest=i, tag=DONE_TAG)
 
 
 class Worker:
+    """
+    Worker node object
+    """
+
     def __init__(self, rank: int, comm, ctl: controller.ComputerController):
         self.rank = rank
         self.comm = comm
         self.controller = ctl
 
     def run(self):
+        """
+        Run the worker.
+        Sends requests for tasks, receives tasks, computes a sub tree for each task and returns the result to the master.
+        :return:
+        """
         while True:
             request = Message(REQUEST_TAG, self.rank)
+            # send a request
             self.comm.isend(request, dest=0, tag=REQUEST_TAG)
             common.log('sent request')
 
+            # receive a task (or DONE event)
             message: Message = self.comm.recv(source=0)
 
-            if message.tag == DONE_TAG:
+            if message.tag == DONE_TAG:  # exit if DONE event
                 common.log('exiting')
                 return
 
+            # do the computation
             result, state = self._work(message.value)
+            # send the result
             self.comm.isend(Message(RESULT_TAG, result), dest=0, tag=RESULT_TAG)
             common.log('sent result')
+            # free up memory
             del state
             del result
 
     def _work(self, task: Task):
+        """
+        Does the actual work: updates the controller board from the task state and calls do_work.
+        :param task: task to complete
+        :return: result and result state
+        """
         state = task.state
         b = board.Board(state)
         self.controller.board = b
@@ -204,13 +306,16 @@ if __name__ == '__main__':
             [1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1],
-         ]
+        ]
     ))
+    # create a pre-computed tree of depth 3
     root = controller.ComputerController.create_tree(b, 1, 3)
     print(root.tree())
+    # create tasks based on the pre-computed tree
     tasks = MasterController._create_tasks(root, max_depth=3)
     for task in tasks:
         print(task)
     print(b.table())
+    # get node that represents move state [5,4,4] and print the moves
     print(root.get_move(5, 4, 4).chain())
     # print(controller.ComputerController.create_tree(b, 1, 2).tree())

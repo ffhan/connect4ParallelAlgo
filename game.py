@@ -3,37 +3,47 @@ import controller
 
 
 class Game:
+    """
+    Game is a wrapper around the Board that contains the current game state.
+    It also controls the main game loop and exit conditions.
+    """
 
     def __init__(self, board: board.Board, player_1: controller.Controller, player_2: controller.Controller):
+        """
+        Create a Game object from the current board and 2 players represented by controllers.
+
+        :param board: board
+        :param player_1: player 1 controller
+        :param player_2: player 2 controller
+        """
         self.board = board
         self.move = 0
         self.won = 0
         self.controllers = [player_1, player_2]
 
     def step(self) -> int:
-        '''
+        """
         Play a move. Player is automatically chosen based on the game state.
         If either player won, all subsequent statuses will be WON/LOST and game state won't be updated.
 
-        :param row: move row
-        :param col: move column
-        :return: move status
-        '''
+        :return: move status (WIN/LOSS/VALID_MOVE/INVALID_MOVE)
+        """
+        # select the appropriate controller and player ID from the game state
         if self.move % 2 == 0:
             ctl = self.controllers[0]
             player = self.board.PLAYER_1
         else:
             ctl = self.controllers[1]
             player = self.board.PLAYER_2
-        if self.won:
+        if self.won:  # if the game was already completed return the appropriate status for the current player (WIN/LOSS)
             self.move += 1
             if player == self.won:
                 return self.board.WIN
             return self.board.LOSS
 
-        col = ctl.play(player)
+        selected_move = ctl.play(player)  # player selects the move
 
-        status = self.board.play(col, player)
+        status = self.board.play(selected_move, player)  # play the selected move
         if status == self.board.INVALID_MOVE:
             return status
         if status == self.board.WIN:
@@ -42,6 +52,12 @@ class Game:
         return status
 
     def run(self, verbose=False):
+        """
+        Runs the main game loop.
+
+        :param verbose: prints the board after every move
+        :return:
+        """
         step_num = 0
         while self.won == 0:
             if len(self.board.valid_moves) == 0:
@@ -55,7 +71,7 @@ class Game:
 
 
 def test_1():
-    all_moves = [0, 1, 2, 3, 5, 4, 5, 6, 1, 1, 2, 1, 2, 1, 2, 1, 2]
+    all_moves = [3, 3, 3, 3, 3, 3, 3, 0, 1, 0, 1, 0, 1, 0, 1]
     b = board.Board()
     game = Game(b, controller.HardcodedController(b, all_moves[::2]),
                 controller.HardcodedController(b, all_moves[1::2]))
@@ -64,11 +80,11 @@ def test_1():
         assert game.step() == b.VALID_MOVE
         assert game.step() == b.VALID_MOVE
         assert game.step() == b.VALID_MOVE
+        assert game.step() == b.VALID_MOVE
+        assert game.step() == b.VALID_MOVE
         assert game.step() == b.INVALID_MOVE
         assert game.step() == b.VALID_MOVE
         assert game.step() == b.VALID_MOVE
-        assert game.step() == b.VALID_MOVE
-        assert game.step() == b.INVALID_MOVE
         assert game.step() == b.VALID_MOVE
         assert game.step() == b.VALID_MOVE
         assert game.step() == b.VALID_MOVE
@@ -92,20 +108,24 @@ def user_vs_user():
 
 def user_vs_computer():
     b = board.Board()
-    game = Game(b, controller.UserController(b), controller.ComputerController(b, difficulty=4))
+    game = Game(b, controller.UserController(b), controller.ComputerController(b, difficulty=6))
     game.run(verbose=True)
 
 
 def computer_vs_computer():
     b = board.Board()
-    game = Game(b, controller.ComputerController(b, difficulty=1), controller.ComputerController(b, difficulty=6))
+    game = Game(b, controller.ComputerController(b, difficulty=6), controller.ComputerController(b, difficulty=6))
     game.run(verbose=True)
 
 
 if __name__ == '__main__':
     import common
+
+    # test for board states
     # test_1()
+    # user vs user game
     # user_vs_user()
-    common.VERBOSE = True
-    user_vs_computer()
-    # computer_vs_computer()
+    # user vs computer game
+    # user_vs_computer()
+    # computer vs computer game
+    computer_vs_computer()
