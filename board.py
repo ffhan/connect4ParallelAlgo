@@ -52,7 +52,7 @@ class Board:
     It assumes two players, doesn't care who the players are - just defines the rules of the game.
     """
     width = 7
-    height = 6
+    height = 7
 
     win_count = 4
 
